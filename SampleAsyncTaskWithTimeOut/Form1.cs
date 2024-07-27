@@ -30,28 +30,30 @@ namespace WinFormsApp1
         {
             int num = int.Parse(tbxNumberInput.Text);
 
-            var result = await Task.Run( async () =>
+            var result = await Task.Run(async () =>
             {
-                for (int i = 0; i < num; i++)
+                try
                 {
-                    if (cancellationToken.IsCancellationRequested) return $"Timeout cancelled"; // Use If want to detect cancelled
-                    
-                    await Task.Yield(); // Allow other tasks to run or run an asynchronous task
+                    await Task.Delay(num,cancellationToken);    //This will throw an exception when cancellationToken active
 
-                    Console.WriteLine(i.ToString());
+                    return $"Done: {num} loop";
                 }
-                return $"Done: {num} loop";
+                catch (OperationCanceledException cancelException)
+                {
+                    return cancelException.Message;
+                }
             }, cancellationToken);
-            
+
             return result;
         }
 
         //private async void button1_Click(object sender, EventArgs e)
         //{
+        //    textBox1.Text = "Processing...";
         //    var cts = new CancellationTokenSource();
 
-        //    Task timeoutTask = Task.Delay(1000, cts.Token);  //Timeout after 1s
-        //    Task<string> task = GetValue(1000000000000, cts.Token);
+        //    Task timeoutTask = Task.Delay(int.Parse(tbxTimeout.Text));  //Timeout after 1s
+        //    Task<string> task = GetValue(int.Parse(tbxNumberInput.Text), cts.Token);
 
         //    if (await Task.WhenAny(task, timeoutTask) == task)
         //    {
@@ -61,7 +63,7 @@ namespace WinFormsApp1
         //    else
         //    {
         //        cts.Cancel();
-        //        textBox1.Text = "failed";
+        //        textBox1.Text = "Timeout";
         //    }
         //}
 
